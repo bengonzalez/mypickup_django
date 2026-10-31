@@ -1,10 +1,15 @@
 # mypickup_django
 
 ## Packages
-$pip install django
-$pip install pillow
-$pip install django-crispy-forms
+```
+pip install django
+pip install pillow
+pip install django-crispy-forms
+```
+Note:
+Had to add this to settings.py
 
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 
 ### Starter template for bootstrap
