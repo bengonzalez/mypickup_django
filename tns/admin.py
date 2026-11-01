@@ -2,7 +2,13 @@ from django.contrib import admin
 
 # Register your models here.
 from .models import Player
-admin.site.register(Player)
+
+
+class PlayerAdmin(admin.ModelAdmin):
+    filter_horizontal = ("clubs",)
+
+
+admin.site.register(Player, PlayerAdmin)
 
 from .models import Venue
 admin.site.register(Venue)

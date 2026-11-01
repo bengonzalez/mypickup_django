@@ -2,14 +2,6 @@ from django.db import models
 
 # Create your models here.
 
-class Player(models.Model):
-    name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=20)
-    email = models.EmailField()
-
-    def __str__(self):
-        return self.name
-
 
 class Venue(models.Model):
     name = models.CharField(max_length=30)
@@ -32,6 +24,15 @@ class Season(models.Model):
 
     def __str__(self):
         return f"Season {self.number} ({self.club.name})"
+
+class Player(models.Model):
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    clubs = models.ManyToManyField(Club, blank=True, related_name="players")
+
+    def __str__(self):
+        return self.name
 
 class Game(models.Model):
     season = models.ForeignKey(Season, on_delete=models.CASCADE, related_name="games")
