@@ -20,7 +20,13 @@ from .models import Season
 admin.site.register(Season)
 
 from .models import Game
-admin.site.register(Game)
+
+
+class GameAdmin(admin.ModelAdmin):
+    filter_horizontal = ("team1_players", "team2_players")
+
+
+admin.site.register(Game, GameAdmin)
 
 from .models import Payment
 admin.site.register(Payment)
