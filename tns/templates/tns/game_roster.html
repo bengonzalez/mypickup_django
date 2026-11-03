@@ -1,0 +1,49 @@
+{% extends "blog/base.html" %}
+{% block content %}
+<div class="content-section">
+  <h2>Game Roster</h2>
+  <form method="get">
+    <div class="form-group">
+      <label for="game">Select a game</label>
+      <select name="game" id="game" class="form-control" onchange="this.form.submit()">
+        <option value="">-- Select a game --</option>
+        {% for season in seasons %}
+          <optgroup label="Season {{ season.number }} ({{ season.club.name }})">
+            {% for game in season.games.all %}
+              <option value="{{ game.pk }}" {% if selected_game.pk == game.pk %}selected{% endif %}>
+                Game {{ game.game_number }} - {{ game.date }}
+              </option>
+            {% endfor %}
+          </optgroup>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+
+  {% if selected_game %}
+    {% if roster_rows %}
+      <table class="table table-bordered mt-3">
+        <thead>
+          <tr>
+            <th>Blue</th>
+            <th>Red</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for blue_player, red_player in roster_rows %}
+            <tr>
+              <td>{% if blue_player %}{{ blue_player.name }}{% endif %}</td>
+              <td>{% if red_player %}{{ red_player.name }}{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-muted mt-3">
+        Neither team on this game is labeled "Blue" or "Red" (team1_color=
+        "{{ selected_game.team1_color }}", team2_color="{{ selected_game.team2_color }}").
+      </p>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
