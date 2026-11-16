@@ -35,5 +35,7 @@ urlpatterns = [
     path("", include('tns.urls')),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Served by Django even outside DEBUG because there's no separate static/media
+# host in front of the container yet; fine at this app's traffic level, but
+# not Django's recommended production setup (consider Azure Blob Storage later).
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
