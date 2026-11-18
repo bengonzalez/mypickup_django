@@ -89,15 +89,29 @@ WSGI_APPLICATION = "mypickup_django.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        # Point this at a path under the App Service persistent /home mount
-        # (via the SQLITE_PATH app setting) once WEBSITES_ENABLE_APP_SERVICE_STORAGE
-        # is turned on, otherwise the DB is wiped on every container restart.
-        "NAME": os.environ.get("SQLITE_PATH", str(BASE_DIR / "db.sqlite3")),
+if os.environ.get("POSTGRES_HOST"):
+    # SQLite previously lived on an AzureFile/SMB mount for persistence, but
+    # SQLite's file-locking doesn't work reliably over SMB ("database is
+    # locked" on migrate). Postgres is used whenever it's configured; SQLite
+    # remains the default for local dev where no Postgres env vars are set.
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ["POSTGRES_DB"],
+            "USER": os.environ["POSTGRES_USER"],
+            "PASSWORD": os.environ["POSTGRES_PASSWORD"],
+            "HOST": os.environ["POSTGRES_HOST"],
+            "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+            "OPTIONS": {"sslmode": "require"},
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.environ.get("SQLITE_PATH", str(BASE_DIR / "db.sqlite3")),
+        }
+    }
 
 
 # Password validation
@@ -138,7 +152,8 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# Same persistence caveat as SQLITE_PATH above applies to uploaded media.
+# Without MEDIA_ROOT_PATH pointing at a persistent mount, uploaded media is
+# wiped on every container restart/scale-to-zero.
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT_PATH", os.path.join(BASE_DIR, 'media'))
 MEDIA_URL = '/media/'
 
